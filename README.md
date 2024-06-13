@@ -3,7 +3,7 @@
 `aed_curents` is a web application that extracts netCDF data and visualises it on a web map.
 
 Live demo: https://ronygolderku.github.io/aed_curents/
-
+![Animation](src/Animation.gif)
 
 ## Using the app
 
@@ -51,6 +51,12 @@ Which themselves rely on:
 * [L.CanvasOverlay.js](https://gist.github.com/Sumbera/11114288)
 * [Leaflet.heat](https://github.com/Leaflet/Leaflet.heat)
 * [earth](https://github.com/cambecc/earth)
+
+License
+This project uses the following license: LICENSE
+
+Contact
+If you want to contact me you can reach me at mdrony.golder@curtin.edu.au.
 
 ## Further work
 * Add instructions
