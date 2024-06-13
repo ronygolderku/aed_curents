@@ -52,12 +52,6 @@ Which themselves rely on:
 * [Leaflet.heat](https://github.com/Leaflet/Leaflet.heat)
 * [earth](https://github.com/cambecc/earth)
 
-License
-This project uses the following license: LICENSE
-
-Contact
-If you want to contact me you can reach me at mdrony.golder@curtin.edu.au.
-
 ## Further work
 * Add instructions
 * Create user interface for netCDF extraction
