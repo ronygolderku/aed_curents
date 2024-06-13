@@ -1,4 +1,4 @@
-# netcdf-vis
+# aed_curents
 
 `aed_curents` is a web application that extracts netCDF data and visualises it on a web map.
 
