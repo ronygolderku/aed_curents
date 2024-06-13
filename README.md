@@ -1,23 +1,23 @@
 # netcdf-vis
 
-`netcdf-vis` is a web application that extracts netCDF data and visualises it on a web map.
+`aed_curents` is a web application that extracts netCDF data and visualises it on a web map.
 
-Live demo: [https://smlum.github.io/netcdf-vis/app/](https://smlum.github.io/netcdf-vis/app/)
+Live demo: https://ronygolderku.github.io/aed_curents/
 
 
 ## Using the app
 
-The app provides users with an interactive Leaflet web map with temperature and wind data overlays.
+The app provides users with an interactive Leaflet web map with Current data overlays.
 
 The overlays and basemaps can be toggled from a control panel in the top right.
 
 
 ## Building and launching
 
-Clone the netcdf-vis repository <br>
+Clone the aed_curents repository <br>
 ```
 git clone https://github.com/samFredLumley/netcdf_vis
-cd netcdf-vis/app
+
 ```
 The app must be run on a web server. For example, using [http-server](https://www.npmjs.com/package/http-server):  
 ```
