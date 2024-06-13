@@ -14,9 +14,9 @@ The overlays and basemaps can be toggled from a control panel in the top right.
 
 ## Building and launching
 
-Clone the aed_curents repository <br>
+Clone the `aed_curents` repository <br>
 ```
-git clone https://github.com/samFredLumley/netcdf_vis
+git clone https://github.com/ronygolderku/aed_curents.git
 
 ```
 The app must be run on a web server. For example, using [http-server](https://www.npmjs.com/package/http-server):  
@@ -25,19 +25,8 @@ http-server
 ```
 And then in your browser go to:
 ```
-http://127.0.0.1:8081
+http://127.0.0.1:8080
 ```
-
-## Custom netCDF data
-
-To configure the app for custom netCDF data you must add the netCDF file to the `data/netcdf` directory and edit `data/netcdf2.py`.
-
-It may be preferable to work with the IPython Notebook file `netcdf2leaflet-velocity.ipynb` to use the step-by-step commented instructions. For example, using [Jupyter Notebook](http://jupyter.org/) run:
-```
-cd netcdf-vis/app/data
-jupyter notebook netcdf2leaflet-velocity.ipynb
-```
-Running the python file will generate two files: `wind.json` and `temps_sm.js`, which are used as inputs for the web map.
 
 ## Map configuration
 
