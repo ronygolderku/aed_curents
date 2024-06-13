@@ -36,7 +36,7 @@ The Leaflet map can be modified in `netcdf-vis.js`. Modifications to the Leaflet
 
 The demo app can be embedded into another webpage as an iframe:
 
-``<iframe src="https://samfredlumley.github.io/netcdf-vis/app/" width="600" height="400"></iframe>``
+``<iframe src="https://ronygolderku.github.io/aed_curents/" width="600" height="400"></iframe>``
 
 A custom version of the app could be embedded in a similar way.
 
