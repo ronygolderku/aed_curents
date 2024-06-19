@@ -1,38 +1,54 @@
-<!-- https://github.com/danwild/leaflet-velocity -->
-
 <!doctype html>
 <html>
 <head>
-	<title>AED_velocity</title>
-	<meta charset="utf-8">
+    <title>AED_velocity</title>
+    <meta charset="utf-8">
+    <link rel="stylesheet" href="https://npmcdn.com/leaflet@1.1.0/dist/leaflet.css" />
+    <link rel="stylesheet" href="dist/leaflet-velocity.css" />
+    <link rel="stylesheet" href="netcdf-vis.css" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <style>
+        #time-slider-container {
+            position: absolute;
+            bottom: 10px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: white;
+            padding: 10px;
+            border-radius: 5px;
+            box-shadow: 0 0 10px rgba(0,0,0,0.5);
+            z-index: 1000; /* Ensure it is on top of other elements */
+        }
+        #time-slider {
+            width: 400px;
+            margin: 0 10px;
+        }
+        .control-button {
+            margin-left: 10px;
+            cursor: pointer;
+        }
+        #current-time {
+            text-align: center;
+            font-weight: bold;
+            margin-bottom: 10px;
+        }
+    </style>
 </head>
 <body>
-
-<div id="map"></div>
-
-<!--vendor-->
-<!--<script src="https://code.jquery.com/jquery-2.2.4.min.js"></script>-->
-<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.1.0/jquery.min.js"></script>
-
-<!-- Leaflet -->
-<link rel="stylesheet" href="https://npmcdn.com/leaflet@1.1.0/dist/leaflet.css" />
-<script src="https://npmcdn.com/leaflet@1.1.0/dist/leaflet.js"></script>
-
-<!-- Load Esri Leaflet from CDN -->
-<script src="https://unpkg.com/esri-leaflet@2.1.4/dist/esri-leaflet.js"
-integrity="sha512-m+BZ3OSlzGdYLqUBZt3u6eA0sH+Txdmq7cqA1u8/B2aTXviGMMLOfrKyiIW7181jbzZAY0u+3jWoiL61iLcTKQ=="
-crossorigin=""></script>
-
-<!--leaflet-idw-->
-<script src="src/leaflet-idw.js"> </script>
-
-<!--demo-->
-<link rel="stylesheet" href="netcdf-vis.css" />
-<script src="netcdf-vis.js"></script>
-
-<!--leaflet-velocity-->
-<link rel="stylesheet" href="dist/leaflet-velocity.css" />
-<script src="dist/leaflet-velocity.js"></script>
-
+    <div id="map"></div>
+    <div id="time-slider-container">
+        <div id="current-time"></div>
+        <i id="play" class="fas fa-play control-button" title="Play"></i>
+        <i id="backward" class="fas fa-backward control-button" title="Backward"></i>
+        <input type="range" id="time-slider" min="0" max="12" step="1" value="0">
+        <i id="forward" class="fas fa-forward control-button" title="Forward"></i>
+        <i id="stop" class="fas fa-stop control-button" title="Stop"></i>
+    </div>
+    <!--vendor-->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.1.0/jquery.min.js"></script>
+    <script src="https://npmcdn.com/leaflet@1.1.0/dist/leaflet.js"></script>
+    <script src="https://unpkg.com/esri-leaflet@2.1.4/dist/esri-leaflet.js" integrity="sha512-m+BZ3OSlzGdYLqUBZt3u6eA0sH+Txdmq7cqA1u8/B2aTXviGMMLOfrKyiIW7181jbzZAY0u+3jWoiL61iLcTKQ==" crossorigin=""></script>
+    <script src="dist/leaflet-velocity.js"></script>
+    <script src="netcdf-vis.js"></script>
 </body>
 </html>
