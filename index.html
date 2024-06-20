@@ -7,6 +7,7 @@
     <link rel="stylesheet" href="dist/leaflet-velocity.css" />
     <link rel="stylesheet" href="netcdf-vis.css" />
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <link rel="stylesheet" href="https://unpkg.com/leaflet.fullscreen/1.6.0/Control.FullScreen.css" />
     <style>
         #time-slider-container {
             position: absolute;
@@ -14,23 +15,50 @@
             left: 50%;
             transform: translateX(-50%);
             background: white;
-            padding: 10px;
+            padding: 2px;
             border-radius: 5px;
-            box-shadow: 0 0 10px rgba(0,0,0,0.5);
+            box-shadow: 0 0 5px rgba(0,0,0,0.3);
             z-index: 1000; /* Ensure it is on top of other elements */
+            display: flex;
+            flex-wrap: nowrap; 
+            align-items: center;
+            justify-content: center;
         }
         #time-slider {
-            width: 400px;
-            margin: 0 10px;
+            flex: 1 1 auto;
+            margin: 0 5px;
+            min-width: 100px;
+			height: 10px;
         }
         .control-button {
-            margin-left: 10px;
-            cursor: pointer;
-        }
-        #current-time {
+			flex: 0 0 auto;
+			margin-left: 5px;
+			cursor: pointer;
+			color: white; /* Text color */
+			background-color:dodgerblue; /* blue */
+			border: none; /* Remove default border */
+			padding: 5px 10px; /* Adjust padding as needed */
+			font-size: 12px; /* Adjust font size as needed */
+			border-radius: 1px; /* YouTube buttons have slightly rounded corners */
+			height: 15px;
+		}
+        #current-time{
+			display: flex;
             text-align: center;
             font-weight: bold;
             margin-bottom: 10px;
+            width: 100%;
+			justify-content: center;
+			align-items: center;
+			height: 15 px;
+        }
+        @media (max-width: 600px) {
+            #time-slider-container {
+                flex-direction: column;
+            }
+            #time-slider {
+                margin: 10px 0;
+            }
         }
     </style>
 </head>
@@ -50,5 +78,6 @@
     <script src="https://unpkg.com/esri-leaflet@2.1.4/dist/esri-leaflet.js" integrity="sha512-m+BZ3OSlzGdYLqUBZt3u6eA0sH+Txdmq7cqA1u8/B2aTXviGMMLOfrKyiIW7181jbzZAY0u+3jWoiL61iLcTKQ==" crossorigin=""></script>
     <script src="dist/leaflet-velocity.js"></script>
     <script src="netcdf-vis.js"></script>
+    <script src="https://unpkg.com/leaflet.fullscreen/1.6.0/Control.FullScreen.js"></script>
 </body>
 </html>
