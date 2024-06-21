@@ -32,6 +32,7 @@ function initDemoMap() {
         layerControl: layerControl
     };
 }
+
 var mapStuff = initDemoMap();
 var map = mapStuff.map;
 var layerControl = mapStuff.layerControl;
@@ -48,10 +49,8 @@ for (let i = 1; i <= 13; i++) {
         dataCache[refTime] = data;
 
         if (i === 13) {
-                // Sort the times array
-            times.sort(function(a, b) {
-            return new Date(a) - new Date(b);
-            });
+            // Sort times chronologically after all files are loaded
+            times.sort((a, b) => new Date(a) - new Date(b));
             // Initialize time slider
             initTimeSlider();
             // Initialize the persistent velocity layer
@@ -62,8 +61,7 @@ for (let i = 1; i <= 13; i++) {
 
 function initTimeSlider() {
     var timeSlider = $('#time-slider');
-    var playButton = $('#play');
-    var stopButton = $('#stop');
+    var playPauseButton = $('#play-pause');
     var forwardButton = $('#forward');
     var backwardButton = $('#backward');
     var currentTime = $('#current-time');
@@ -76,12 +74,14 @@ function initTimeSlider() {
         currentTime.text(times[timeIndex]);
     });
 
-    playButton.on('click', function () {
-        playSlider();
-    });
-
-    stopButton.on('click', function () {
-        stopSlider();
+    playPauseButton.on('click', function () {
+        if (playPauseButton.hasClass('fa-play')) {
+            playSlider();
+            playPauseButton.removeClass('fa-play').addClass('fa-pause').attr('title', 'Pause');
+        } else {
+            stopSlider();
+            playPauseButton.removeClass('fa-pause').addClass('fa-play').attr('title', 'Play');
+        }
     });
 
     forwardButton.on('click', function () {
@@ -130,11 +130,12 @@ function playSlider() {
         if (timeSlider.val() < times.length - 1) {
             timeSlider.val(+timeSlider.val() + 1).trigger('input');
         } else {
-            clearInterval(playInterval);
+            stopSlider();
         }
     }, 1000);
 }
 
 function stopSlider() {
     clearInterval(playInterval);
+    $('#play-pause').removeClass('fa-pause').addClass('fa-play').attr('title', 'Play');
 }

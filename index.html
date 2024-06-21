@@ -28,29 +28,29 @@
             flex: 1 1 auto;
             margin: 0 5px;
             min-width: 100px;
-			height: 10px;
+            height: 10px;
         }
         .control-button {
-			flex: 0 0 auto;
-			margin-left: 5px;
-			cursor: pointer;
-			color: white; /* Text color */
-			background-color:dodgerblue; /* blue */
-			border: none; /* Remove default border */
-			padding: 5px 10px; /* Adjust padding as needed */
-			font-size: 12px; /* Adjust font size as needed */
-			border-radius: 1px; /* YouTube buttons have slightly rounded corners */
-			height: 15px;
-		}
-        #current-time{
-			display: flex;
+            flex: 0 0 auto;
+            margin-left: 5px;
+            cursor: pointer;
+            color: white; /* Text color */
+            background-color: dodgerblue; /* blue */
+            border: none; /* Remove default border */
+            padding: 5px 10px; /* Adjust padding as needed */
+            font-size: 12px; /* Adjust font size as needed */
+            border-radius: 1px; /* YouTube buttons have slightly rounded corners */
+            height: 15px;
+        }
+        #current-time {
+            display: flex;
             text-align: center;
             font-weight: bold;
             margin-bottom: 10px;
             width: 100%;
-			justify-content: center;
-			align-items: center;
-			height: 15 px;
+            justify-content: center;
+            align-items: center;
+            height: 15 px;
         }
         @media (max-width: 600px) {
             #time-slider-container {
@@ -66,11 +66,10 @@
     <div id="map"></div>
     <div id="time-slider-container">
         <div id="current-time"></div>
-        <i id="play" class="fas fa-play control-button" title="Play"></i>
-        <i id="backward" class="fas fa-backward control-button" title="Backward"></i>
         <input type="range" id="time-slider" min="0" max="12" step="1" value="0">
+        <i id="play-pause" class="fas fa-play control-button" title="Play"></i>
+        <i id="backward" class="fas fa-backward control-button" title="Backward"></i>
         <i id="forward" class="fas fa-forward control-button" title="Forward"></i>
-        <i id="stop" class="fas fa-stop control-button" title="Stop"></i>
     </div>
     <!--vendor-->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.1.0/jquery.min.js"></script>
