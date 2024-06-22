@@ -37,13 +37,19 @@ function initDemoMap() {
     L.control.mousePosition().addTo(map)
     
     // Add search control
-    var searchControl = new L.Control.Search({
-      layer: baseLayers["Grey Canvas"], // Specify the layer to search within
-      initial: false,
-      zoom: 12,
-      marker: false
-    });
-    map.addControl(searchControl);
+    // var searchControl = new L.Control.Search({
+    // layer: baseLayers["Feature Layer"], // Ensure this is a feature layer
+    // propertyName: 'name', // Adjust based on your feature property
+    // initial: false,
+    // zoom: 12,
+    // marker: false
+    // });
+    //map.addControl(searchControl);
+    var search = new GeoSearch.GeoSearchControl({
+        provider: new GeoSearch.OpenStreetMapProvider(),
+      });
+
+    map.addControl(search);
         // Add draw control
     var drawnItems = new L.FeatureGroup();
     map.addLayer(drawnItems);
