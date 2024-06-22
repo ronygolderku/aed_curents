@@ -1,3 +1,5 @@
 {
-    "liveServer.settings.port": 5501
+    "liveServer.settings.port": 5501,
+    "appService.defaultWebAppToDeploy": "/subscriptions/42fccc01-cdf9-4b5c-8467-718011fdcc4d/resourceGroups/wamsisatellite_group/providers/Microsoft.Web/sites/wamsisatellite",
+    "appService.deploySubpath": "."
 }
