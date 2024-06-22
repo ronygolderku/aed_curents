@@ -8,7 +8,6 @@ function initDemoMap() {
     var corner1 = L.latLng(-30, 110),
         corner2 = L.latLng(-35, 120),
         bounds = L.latLngBounds(corner1, corner2);
-
     var map = L.map('map', {
         layers: [Esri_DarkGreyCanvas],
         center: bounds.getCenter(),
@@ -20,13 +19,20 @@ function initDemoMap() {
     });
 
     var layerControl = L.control.layers(baseLayers, null, { collapsed: false });
-    layerControl.addTo(map);
-
+    layerControl.addTo(map);    
+    // Add mini map
+    var miniMapLayer = L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+      attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+    });
+    var miniMap = new L.Control.MiniMap(miniMapLayer, {
+      toggleDisplay: true,
+      minimized: false
+    }).addTo(map);
     // Ensure the slider remains on top
     map.on('zoomend', function() {
         document.getElementById('time-slider-container').style.zIndex = 1000;
     });
-
+    L.control.scale().addTo(map);
     return {
         map: map,
         layerControl: layerControl
