@@ -33,6 +33,31 @@ function initDemoMap() {
         document.getElementById('time-slider-container').style.zIndex = 1000;
     });
     L.control.scale().addTo(map);
+    L.control.fullscreen().addTo(map);
+    L.control.mousePosition().addTo(map)
+    
+    // Add search control
+    var searchControl = new L.Control.Search({
+      layer: baseLayers["Grey Canvas"], // Specify the layer to search within
+      initial: false,
+      zoom: 12,
+      marker: false
+    });
+    map.addControl(searchControl);
+        // Add draw control
+    var drawnItems = new L.FeatureGroup();
+    map.addLayer(drawnItems);
+    var drawControl = new L.Control.Draw({
+        edit: {
+        featureGroup: drawnItems
+        }
+    });
+    map.addControl(drawControl);
+    map.on('draw:created', function (e) {
+        var type = e.layerType,
+            layer = e.layer;
+        drawnItems.addLayer(layer);
+    });    
     return {
         map: map,
         layerControl: layerControl
