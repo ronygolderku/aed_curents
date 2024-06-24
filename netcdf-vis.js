@@ -169,7 +169,7 @@ function playSlider() {
         } else {
             stopSlider();
         }
-    }, 3000);
+    }, 2000);
 }
 
 function stopSlider() {
