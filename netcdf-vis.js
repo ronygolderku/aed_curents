@@ -71,8 +71,8 @@ function initDemoMap() {
 }
 
 var mapStuff = initDemoMap();
-var map = mapStuff.map;
-var layerControl = mapStuff.layerControl;
+window.map = mapStuff.map;
+window.layerControl = mapStuff.layerControl;
 
 var times = [];
 var dataCache = {};
