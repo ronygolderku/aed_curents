@@ -117,7 +117,7 @@ document.addEventListener('DOMContentLoaded', function() {
                     y: {
                         title: {
                             display: true,
-                            text: 'Chlorophyll (CHL)'
+                            text: 'Chlorophyll (CHL) [mg/m³]'
                         }
                     }
                 }
