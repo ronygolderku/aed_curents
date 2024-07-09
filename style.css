@@ -1,0 +1,162 @@
+.container {
+    display: flex;
+    width: 100%;
+    height: 100vh; /* Full height of the viewport */
+}
+
+.sidebar {
+    flex: 0 0 20%; /* Adjust width as needed */
+    background-color: #f4f4f4; /* Gives the sidebar a distinct color */
+    overflow-y: auto; /* Ensure content is scrollable if it exceeds height */
+    padding: 20px; /* Adds some padding inside the sidebar */
+    box-shadow: 2px 0 5px rgba(0,0,0,0.1); /* Optional: adds a slight shadow for better visual separation */
+}
+
+.main-content {
+    flex: 1;
+    position: relative; /* Required for the time slider container to be positioned relative to this element */
+}
+#time-slider-container {
+    position: absolute;
+    bottom: 10px;
+    left: 50%;
+    transform: translateX(-50%);
+    background: white;
+    padding: 2px;
+    border-radius: 5px;
+    box-shadow: 0 0 5px rgba(0,0,0,0.3);
+    z-index: 1000; /* Ensure it is on top of other elements */
+    display: flex;
+    flex-wrap: nowrap; 
+    align-items: center;
+    justify-content: center;
+}
+
+#time-slider {
+    flex: 1 1 auto;
+    margin: 0 5px;
+    min-width: 100px;
+    height: 10px;
+}
+
+.control-button {
+    flex: 0 0 auto;
+    margin-left: 5px;
+    cursor: pointer;
+    color: white; /* Text color */
+    background-color: dodgerblue; /* blue */
+    border: none; /* Remove default border */
+    padding: 5px 10px; /* Adjust padding as needed */
+    font-size: 12px; /* Adjust font size as needed */
+    border-radius: 1px; /* YouTube buttons have slightly rounded corners */
+    height: 15px;
+}
+
+#current-time {
+    display: flex;
+    text-align: center;
+    font-weight: bold;
+    margin-bottom: 10px;
+    width: 100%;
+    justify-content: center;
+    align-items: center;
+    height: 15px;
+}
+
+@media (max-width: 600px) {
+    #time-slider-container {
+        flex-direction: column;
+    }
+
+    #time-slider {
+        margin: 10px 0;
+    }
+}
+
+#chart-container {
+    width: 50%;
+    position: absolute;
+    top: 0;
+    left: 50px;
+    z-index: 500; /* Ensure it is on top of other elements */
+    background: white;
+    padding: 5px;
+    border-radius: 5px;
+    box-shadow: 0 0 5px rgba(0,0,0,0.3);
+    display: none;
+    overflow: auto;
+
+}
+
+/* style.css */
+#bssidebar {
+    overflow-y: auto;
+    height: 88vh !important;
+}
+
+.navbar {
+    padding-top: 0rem !important;
+}
+
+.form-control {
+    width: 95%;
+}
+
+/* style.css */
+
+/* Remove default bullets and apply custom styles */
+#bssidebar ul.list-unstyled.components {
+    list-style-type: none; /* Removes bullets */
+    padding-left: 0; /* Optional: Remove default left padding */
+}
+
+#bssidebar ul.list-unstyled.components li {
+    /* Add additional styling for list items if needed */
+    margin-bottom: 10px; /* Example: Add margin between list items */
+}
+
+#bssidebar ul.list-unstyled.components li a {
+    font-weight: bold; /* Example: Make links bold */
+}
+
+/* Example: Style the select inputs */
+#bssidebar select {
+    width: 95%;
+    padding: 5px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    margin-top: 5px;
+}
+
+/* Example: Style the number inputs */
+#bssidebar input[type="number"] {
+    width: 40%;
+    padding: 5px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    margin-top: 5px;
+}
+
+
+.btn {
+    /* Define your custom button styles here */
+    background-color: transparent;
+    padding-top: 5px;
+    border: 1px solid #0056b3; /* Blue border */
+    font-size: 1rem;
+}
+
+.btn:hover {
+    background-color: #0056b3; /* Darker shade on hover */
+}
+
+#colorbar {
+    position:absolute; 
+    display: inline-block; 
+    top: 60%; 
+    margin-left: 15px;
+    border-style: ridge;
+    background-color: white;
+    z-index: 400;
+  }
+
