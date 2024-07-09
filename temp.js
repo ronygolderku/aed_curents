@@ -1,5 +1,4 @@
 // plankton.js
-
 document.addEventListener('DOMContentLoaded', function() {
     // Ensure AWS SDK is available globally
     const { S3 } = AWS;
@@ -74,16 +73,20 @@ document.addEventListener('DOMContentLoaded', function() {
         });
         console.log("Plankton markers added");
         // planktonLayer.addTo(map);
-        layerControl.addOverlay(planktonLayer, 'Sentinel Chl-a');
+        layerControl.addOverlay(planktonLayer, 'GHRSST SST');
         return planktonLayer;
     }
 
     // Function to fetch time series data for a point
     async function fetchTimeSeriesData(pointId) {
-        const filePath = `csiem-data/data-lake/ESA/Sentinel/Points/CMEMS_OLCI_CHL_point_${pointId}.csv`;
-        const csvText = await fetchObjectFromS3(filePath);
-        if (csvText) {
-            const data = parseCSV(csvText, ',');
+        const filePaths = [
+            `csiem-data/data-lake/NASA/GHRSST/Points/2002-2023/GHRSST_sst_point_${pointId}.csv`,
+            `csiem-data/data-lake/NASA/GHRSST/Points/ghrsst_sst_point_${pointId}.csv`
+        ];
+        const csvTexts = await Promise.all(filePaths.map(filePath => fetchObjectFromS3(filePath)));
+        const data = csvTexts.filter(Boolean).flatMap(csvText => parseCSV(csvText, ','));
+
+        if (data.length > 0) {
             plotTimeSeries(data, pointId);
         }
     }
@@ -93,7 +96,7 @@ document.addEventListener('DOMContentLoaded', function() {
     // Function to plot time series data
     function plotTimeSeries(data, pointId) {
         const labels = data.map(row => new Date(row.time)); // Parse the date format "yyyy-mm-dd"
-        const values = data.map(row => parseFloat(row.CHL));
+        const values = data.map(row => parseFloat(row.analysed_sst));
 
         const ctx = document.getElementById('chart').getContext('2d');
 
@@ -111,9 +114,9 @@ document.addEventListener('DOMContentLoaded', function() {
             data: {
                 labels: labels,
                 datasets: [{
-                    label: `Sentinel Chlorophyll-a (CHL) at Station ${pointId}`,
+                    label: `GHRSST SST at Station ${pointId}`,
                     data: values,
-                    borderColor: 'rgba(75, 192, 192, 1)',
+                    borderColor: 'rgba(255, 0, 0, 1)',
                     borderWidth: 1,
                     fill: false
                 }]
@@ -138,7 +141,7 @@ document.addEventListener('DOMContentLoaded', function() {
                     y: {
                         title: {
                             display: true,
-                            text: 'Chlorophyll (CHL) [mg/m³]'
+                            text: 'Sea Surface Temperature [deg C]'
                         }
                     }
                 }
