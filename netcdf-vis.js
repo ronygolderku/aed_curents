@@ -33,7 +33,6 @@ function initDemoMap() {
         document.getElementById('time-slider-container').style.zIndex = 1000;
     });
     L.control.scale().addTo(map);
-<<<<<<< HEAD
     L.control.fullscreen().addTo(map);
     L.control.mousePosition().addTo(map)
     
@@ -65,8 +64,6 @@ function initDemoMap() {
             layer = e.layer;
         drawnItems.addLayer(layer);
     });    
-=======
->>>>>>> ea36029 (update)
     return {
         map: map,
         layerControl: layerControl
@@ -178,8 +175,4 @@ function playSlider() {
 function stopSlider() {
     clearInterval(playInterval);
     $('#play-pause').removeClass('fa-pause').addClass('fa-play').attr('title', 'Play');
-<<<<<<< HEAD
 }
-=======
-}
->>>>>>> af27ab6 (update)
