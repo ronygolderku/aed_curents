@@ -175,4 +175,8 @@ function playSlider() {
 function stopSlider() {
     clearInterval(playInterval);
     $('#play-pause').removeClass('fa-pause').addClass('fa-play').attr('title', 'Play');
+<<<<<<< HEAD
 }
+=======
+}
+>>>>>>> af27ab6 (update)
