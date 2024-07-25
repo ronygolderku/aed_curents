@@ -38,7 +38,7 @@ async function updateSelectors() {
 
     dates.forEach(date => {
         const option = document.createElement('option');
-        option.value = date;
+        option.value = date.replace(/\//g, ''); // Remove slashes from date
         option.textContent = date;
         dateSelect.appendChild(option);
     });
@@ -67,136 +67,83 @@ async function updateMap(event) {
     if (event) {
         event.preventDefault();
     }
+    // Start the spinner before loading data
+    map.spin(true, { lines: 8, length: 30, width: 13, radius: 20, scale: 0.5, color: 'white' });
 
     const dataset = document.getElementById('dataset').value;
     const variable = document.getElementById('variable').value;
     const date = document.getElementById('daterange').value;
+    const messageElement = document.getElementById('message'); // Assuming there's an element with id 'message' to show messages
 
     console.log("Fetching data from backend");
 
     try {
-        const response = await fetch(`http://localhost:5000/fetch_netcdf?dataset=${dataset}&date=${date}&variable=${variable}`);
+        // Fetch both the main image and the colorbar in parallel
+        const [response, colorbarResponse] = await Promise.all([
+            fetch(`http://localhost:5000/fetch_netcdf?dataset=${dataset}&date=${date}&variable=${variable}`),
+            fetch(`http://localhost:5000/fetch_colorbar`)
+        ]);
+
+        if (response.status === 204) {
+            throw new Error('No data found for the selected variables within this region 😞');
+        }
         if (!response.ok) {
             throw new Error(`HTTP error! status: ${response.status}`);
         }
-        const ncData = await response.json();
-        console.log("NetCDF data fetched successfully:", ncData);
+        if (!colorbarResponse.ok) {
+            throw new Error(`HTTP error! status: ${colorbarResponse.status}`);
+        }
 
-        plotDataOnMap(ncData.latitudes, ncData.longitudes, ncData.data);
+        // Process the main image
+        const blob = await response.blob();
+        const url = URL.createObjectURL(blob);
+
+        if (window.currentLayer) {
+            map.removeLayer(window.currentLayer);
+        }
+
+        const corner1 = L.latLng(-33, 114);
+        const corner2 = L.latLng(-31, 116);
+        const bounds = L.latLngBounds(corner1, corner2);
+
+        window.currentLayer = L.imageOverlay(url, bounds).addTo(map);
+        map.fitBounds(bounds);
+
+        // Process the colorbar image
+        const colorbarBlob = await colorbarResponse.blob();
+        const colorbarUrl = URL.createObjectURL(colorbarBlob);
+        // Define bounds for the colorbar overlay. Adjust these coordinates to position the colorbar on your map.
+        const colorbarCorner1 = L.latLng(-31.01, 116); // Example coordinates, adjust as needed
+        const colorbarCorner2 = L.latLng(-33.01, 116.5); // Example coordinates, adjust as needed
+        const colorbarBounds = L.latLngBounds(colorbarCorner1, colorbarCorner2);
+
+        // Check if there's an existing colorbar layer and remove it
+        if (window.colorbarLayer) {
+            map.removeLayer(window.colorbarLayer);
+        }
+
+        // Create a new colorbar overlay and add it to the map
+        window.colorbarLayer = L.imageOverlay(colorbarUrl, colorbarBounds, {opacity: 1}).addTo(map);
+
+        // Clear any previous messages
+        messageElement.textContent = '';
+
+        // Stop the spinner after all data has been loaded and processed
+        map.spin(false);
     } catch (error) {
         console.error("Error fetching data:", error);
-    }
-}
-
-function plotDataOnMap(latitudes, longitudes, data) {
-    console.log("Plotting data on map with latitudes, longitudes, and data:", { latitudes, longitudes, data });
-
-    if (!latitudes.length || !longitudes.length || !data.length) {
-        console.error("Invalid data for plotting");
-        return;
-    }
-
-    const bounds = [[latitudes[0], longitudes[0]], [latitudes[latitudes.length - 1], longitudes[longitudes.length - 1]]];
-    const canvasOverlay = L.imageOverlay(canvasRenderer(latitudes, longitudes, data), bounds).addTo(map);
-
-    if (window.currentLayer) {
-        map.removeLayer(window.currentLayer);
-    }
-
-    window.currentLayer = canvasOverlay;
-    addColorBar();
-}
-
-function canvasRenderer(latitudes, longitudes, data) {
-    const canvas = document.createElement('canvas');
-    const context = canvas.getContext('2d');
-    const width = longitudes.length;
-    const height = latitudes.length;
-    canvas.width = width;
-    canvas.height = height;
-
-    const imageData = context.createImageData(width, height);
-    const pixels = imageData.data;
-
-    for (let i = 0; i < height; i++) {
-        for (let j = 0; j < width; j++) {
-            const value = data[0][i][j];
-            if (!isNaN(value)) {
-                const color = getColor(value);
-                const index = (i * width + j) * 4;
-                pixels[index] = color.r;
-                pixels[index + 1] = color.g;
-                pixels[index + 2] = color.b;
-                pixels[index + 3] = 255; // Alpha channel
-            }
+        // Ensure the spinner is stopped even if there's an error
+        map.spin(false);
+        messageElement.textContent = error.message || 'Error fetching data. Please try again.';
+        // Remove any existing layers
+        if (window.currentLayer) {
+            map.removeLayer(window.currentLayer);
+            window.currentLayer = null;
+        }
+        // Remove any existing colorbar
+        if (window.colorbarLayer) {
+            map.removeLayer(window.colorbarLayer);
+            window.colorbarLayer = null; // Reset the colorbar layer
         }
     }
-
-    context.putImageData(imageData, 0, 0);
-    return canvas.toDataURL();
-}
-
-function getColor(value) {
-    const min = 0;
-    const max = 1;
-    const normalizedValue = (value - min) / (max - min);
-    const hue = (1 - normalizedValue) * 240;
-    const rgb = hslToRgb(hue / 360, 1, 0.5);
-    return { r: rgb[0], g: rgb[1], b: rgb[2] };
-}
-
-function hslToRgb(h, s, l) {
-    let r, g, b;
-    if (s === 0) {
-        r = g = b = l; // achromatic
-    } else {
-        const hue2rgb = function(p, q, t) {
-            if (t < 0) t += 1;
-            if (t > 1) t -= 1;
-            if (t < 1 / 6) return p + (q - p) * 6 * t;
-            if (t < 1 / 2) return q;
-            if (t < 2 / 3) return p + (q - p) * (2 / 3 - t) * 6;
-            return p;
-        };
-        const q = l < 0.5 ? l * (1 + s) : l + s - l * s;
-        const p = 2 * l - q;
-        r = hue2rgb(p, q, h + 1 / 3);
-        g = hue2rgb(p, q, h);
-        b = hue2rgb(p, q, h - 1 / 3);
-    }
-    return [Math.round(r * 255), Math.round(g * 255), Math.round(b * 255)];
-}
-
-function addColorBar() {
-    const colorBarContainer = document.getElementById('colorbar');
-    colorBarContainer.innerHTML = '';
-
-    const colorBar = document.createElement('canvas');
-    colorBar.width = 256;
-    colorBar.height = 50;
-    const context = colorBar.getContext('2d');
-
-    for (let i = 0; i <= 256; i++) {
-        const value = i / 256;
-        const color = getColor(value);
-        context.fillStyle = `rgb(${color.r}, ${color.g}, ${color.b})`;
-        context.fillRect(i, 0, 1, 30);
-    }
-
-    context.fillStyle = "#000";
-    context.font = "12px Arial";
-    context.fillText("Min", 0, 40);
-    context.fillText("Max", 230, 40);
-    context.fillText("Value", 110, 40);
-
-    const gradient = context.createLinearGradient(0, 0, 256, 0);
-    for (let i = 0; i <= 256; i++) {
-        const value = i / 256;
-        const color = getColor(value);
-        gradient.addColorStop(value, `rgb(${color.r}, ${color.g}, ${color.b})`);
-    }
-    context.fillStyle = gradient;
-    context.fillRect(0, 0, 256, 30);
-
-    colorBarContainer.appendChild(colorBar);
 }

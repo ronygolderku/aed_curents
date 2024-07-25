@@ -150,13 +150,24 @@
     background-color: #0056b3; /* Darker shade on hover */
 }
 
-#colorbar {
-    position:absolute; 
-    display: inline-block; 
-    top: 60%; 
-    margin-left: 15px;
-    border-style: ridge;
-    background-color: white;
-    z-index: 400;
-  }
+  .legenda-temp {
+    background: rgba(255, 255, 255, 0.8);
+    padding: 6px 8px;
+    font: 14px/16px Arial, Helvetica, sans-serif;
+    box-shadow: 0 0 15px rgba(0, 0, 0, 0.2);
+    border-radius: 5px;
+}
+.legenda-temp div {
+    width: 20px;
+    height: 20px;
+    float: left;
+    margin-right: 5px;
+}
 
+#colorbar {
+    width: 20%;
+    height: 100vh;
+    float: left;
+    padding: 10px;
+    box-sizing: border-box;
+}

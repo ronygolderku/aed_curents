@@ -1,19 +1,27 @@
-from flask import Flask, jsonify, request
+from flask import Flask, jsonify, request, send_file
 from flask_cors import CORS
 import boto3
-import netCDF4 as nc
 import os
-import tempfile
+from dotenv import load_dotenv
 import numpy as np
+from netCDF4 import Dataset
+import matplotlib
+matplotlib.use('Agg')
+from matplotlib.colors import LogNorm
+from matplotlib.ticker import FuncFormatter, NullLocator
+import matplotlib.pyplot as plt
+from io import BytesIO
+import cartopy.crs as ccrs
+import cartopy.feature as cfeature
+from contextlib import closing
 
 app = Flask(__name__)
 CORS(app)  # Enable CORS for all routes
 
-# AWS credentials and endpoint URL
-AWS_ACCESS_KEY_ID = '4b68780a4be74f31aa2e7cbc4de6dd2f'
-AWS_SECRET_ACCESS_KEY = '92dcce9fa2034ac7af8fd4c92182567e'
-AWS_S3_ENDPOINT = 'https://projects.pawsey.org.au'
-AWS_DEFAULT_REGION = 'us-east-1'
+AWS_ACCESS_KEY_ID = os.getenv('AWS_ACCESS_KEY_ID')
+AWS_SECRET_ACCESS_KEY = os.getenv('AWS_SECRET_ACCESS_KEY')
+AWS_S3_ENDPOINT = os.getenv('AWS_S3_ENDPOINT')
+AWS_DEFAULT_REGION = os.getenv('AWS_DEFAULT_REGION')
 
 # Initialize S3 client
 s3_client = boto3.client(
@@ -53,7 +61,8 @@ def list_dates():
                 break
 
         sorted_dates = sorted(dates)
-        return jsonify(sorted_dates)
+        formatted_dates = [f"{date[:4]}/{date[4:6]}/{date[6:]}" for date in sorted_dates]
+        return jsonify(formatted_dates)
     except Exception as e:
         print(e)
         return jsonify({"error": str(e)}), 500
@@ -63,35 +72,73 @@ def fetch_netcdf():
     dataset = request.args.get('dataset')
     date = request.args.get('date')
     variable = request.args.get('variable')
-
+    prefix = f'csiem-data/data-lake/ESA/{dataset}/NC/S3_Chl_{date}.nc'
+    bucket_name = 'wamsi-westport-project-1-1'
+    
     try:
-        # Construct the file path
-        file_path = f'csiem-data/data-lake/ESA/{dataset}/NC/S3_Chl_{date}.nc'
+        temp_dir = '/tmp' if os.name != 'nt' else os.getenv('TEMP')
+        if not os.path.exists(temp_dir):
+            os.makedirs(temp_dir)
 
-        # Create a temporary file
-        with tempfile.NamedTemporaryFile(delete=False) as temp_file:
-            local_file = temp_file.name
+        local_file = os.path.join(temp_dir, os.path.basename(prefix))
+        s3_client.download_file(bucket_name, prefix, local_file)
+        
+        with closing(Dataset(local_file)) as dataset:
+            latitude = np.array(dataset.variables['latitude'])
+            longitude = np.array(dataset.variables['longitude'])
+            chl = dataset.variables[variable][:].squeeze()
+        # Check if valid data is found
+        if np.ma.is_masked(chl) and np.all(chl.mask):
+                return jsonify({'message': 'No data found within this region!'}), 204  # 204 No Content
+        
+        plt.figure(figsize=(8, 6))
+        ax = plt.axes(projection=ccrs.PlateCarree())
 
-        # Download the NetCDF file from S3
-        s3_client.download_file('wamsi-westport-project-1-1', file_path, local_file)
+        vmin, vmax = 10**-1.7, 10**1.5
 
-        # Open the NetCDF file
-        with nc.Dataset(local_file) as ds:
-            latitudes = ds.variables['latitude'][:].tolist()
-            longitudes = ds.variables['longitude'][:].tolist()
-            data = ds.variables[variable][:].tolist()
+        img = ax.pcolormesh(longitude, latitude, chl, cmap='jet', 
+                            norm=LogNorm(vmin=vmin, vmax=vmax), 
+                            transform=ccrs.PlateCarree())
 
-        # Clean up the local file
+        ax.add_feature(cfeature.OCEAN, zorder=0, color='#232227')
+        ax.add_feature(cfeature.LAND, zorder=0, color='#4E4E50')
+        
+        ax.set_extent([114, 116, -33, -31], crs=ccrs.PlateCarree())
+        ax.set_aspect(aspect='auto')
+
+        plt.axis('off')  # Turn off the axis
+        buf = BytesIO()
+        plt.savefig(buf, format='png', bbox_inches='tight', pad_inches=0)
+        buf.seek(0)
+        plt.close()
         os.remove(local_file)
 
-        return jsonify({
-            'latitudes': latitudes,
-            'longitudes': longitudes,
-            'data': data
-        })
+        return send_file(buf, mimetype='image/png')
     except Exception as e:
-        print(e)
-        return jsonify({"error": str(e)}), 500
+        print(f"Error processing NetCDF file: {e}")
+        return jsonify({'error': str(e)}), 500
+
+@app.route('/fetch_colorbar')
+def fetch_colorbar():
+    fig, ax = plt.subplots(figsize=(0.3, 6))
+    cmap = plt.get_cmap('jet')
+    norm = LogNorm(vmin=10**-1.7, vmax=10**1.5)
+    cbar = plt.colorbar(plt.cm.ScalarMappable(norm=norm, cmap=cmap), cax=ax, orientation='vertical', extend='both')
+    cbar.set_label('Chl-a concentration (Log10 mg/m$^3$)')
+    ticks = [10**-1.7, 10**-1.2, 10**-0.9, 10**-0.6, 10**-0.3, 10**0, 10**0.3, 10**0.6, 10**0.9, 10**1.2, 10**1.5]
+    cbar.set_ticks(ticks)
+    
+    # Use a custom formatter function to display the exponent values of the logarithmic scale
+    cbar.ax.yaxis.set_major_formatter(FuncFormatter(lambda x, pos: "{:.1f}".format(np.log10(x)) if x in ticks else ''))
+    
+    # Remove minor ticks
+    cbar.ax.yaxis.set_minor_locator(NullLocator())
+    buf = BytesIO()
+    plt.savefig(buf, format='png', bbox_inches='tight', pad_inches=0.1)
+    buf.seek(0)
+    plt.close(fig)
+    
+    return send_file(buf, mimetype='image/png')
 
 if __name__ == '__main__':
     app.run(debug=True)

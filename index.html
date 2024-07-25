@@ -13,6 +13,7 @@
     <link rel="stylesheet" href="https://unpkg.com/leaflet-minimap/dist/Control.MiniMap.min.css" />
     <link rel="stylesheet" href="https://unpkg.com/leaflet-draw/dist/leaflet.draw.css" />
     <link rel="stylesheet" href="dist/L.Control.MousePosition.css" />
+
 </head>
 <body>
     <div class="container">
@@ -37,30 +38,27 @@
                         <li>
                             <a><b>Dataset</b></a>
                             <select class="form-control" name="dataset" id="dataset" onchange="updateSelectors()">
-                                <!-- <option value="0">Select dataset</option> -->
                             </select>
                         </li>
                         <li>
                             <a><b>Variable</b></a>
                             <select class="form-control" name="variable" id="variable" onchange="updateUserSelection()">
-                                <!-- <option value="0">Select variable</option> -->
                             </select>
                         </li>
                         <li>
                             <a><b>Date</b></a>
                             <select class="form-control" name="daterange" id="daterange" onchange="updateUserSelection()">
-                                <!-- <option value="0">Select variable</option> -->
                             </select>
                         </li>
                         <li>
-                            <center><button class="btn" id="showButton" type="button" onclick="updateMap(event)">Show</button></center>
+                            <center><button class="btn" type="button" onclick="updateMap()">Show</button></center>
+                            <center><p id="message" style="color: red;"></p></center>
                         </li>
                     </ul>
                 </div>
             </nav>            
         </div>
     </div>
-    <!--vendor-->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.1.0/jquery.min.js"></script>
     <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
     <script src="https://unpkg.com/esri-leaflet@2.1.4/dist/esri-leaflet.js" integrity="sha512-m+BZ3OSlzGdYLqUBZt3u6eA0sH+Txdmq7cqA1u8/B2aTXviGMMLOfrKyiIW7181jbzZAY0u+3jWoiL61iLcTKQ==" crossorigin=""></script>
@@ -75,7 +73,9 @@
     <script src="https://sdk.amazonaws.com/js/aws-sdk-2.1043.0.min.js"></script>
     <script src="netcdf-vis.js"></script>
     <script src="chl.js"></script>
-    <script src="dist/plankton.bundle.js"></script>
-    <script src="dist/temperature.bundle.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/spin.js/2.3.2/spin.min.js" charset="utf-8"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/Leaflet.Spin/1.1.0/leaflet.spin.min.js" charset="utf-8"></script>
+    <!-- <script src="dist/plankton.bundle.js"></script> 
+    <script src="dist/temperature.bundle.js"></script> -->
 </body>
 </html>
