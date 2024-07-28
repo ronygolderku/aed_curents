@@ -19,6 +19,7 @@ from contextlib import closing
 app = Flask(__name__)  # Initialize Flask app
 CORS(app)  # Enable CORS for all routes
 
+# Load environment variables
 load_dotenv()
 
 AWS_ACCESS_KEY_ID = os.getenv('AWS_ACCESS_KEY_ID')
@@ -155,6 +156,5 @@ def fetch_colorbar():
     plt.close(fig)
     
     return send_file(buf, mimetype='image/png')
-
 if __name__ == '__main__':
     app.run(debug=True)
