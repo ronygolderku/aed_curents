@@ -4,7 +4,7 @@ document.addEventListener('DOMContentLoaded', async function() {
 
 async function initializeSelectors() {
     try {
-        const datasets = ['Sentinel'];
+        const datasets = ['Sentinel', 'GHRSST'];
         const datasetSelect = document.getElementById('dataset');
         datasets.forEach(dataset => {
             const option = document.createElement('option');
@@ -21,7 +21,7 @@ async function initializeSelectors() {
 
 async function updateSelectors() {
     const dataset = document.getElementById('dataset').value;
-    const variables = ['CHL'];
+    const variables = dataset === 'Sentinel' ? ['CHL'] : ['analysed_sst'];
     const variableSelect = document.getElementById('variable');
     variableSelect.innerHTML = '';
 
@@ -45,7 +45,10 @@ async function updateSelectors() {
 }
 
 async function fetchDatesForDataset(dataset) {
-    const prefix = `csiem-data/data-lake/ESA/${dataset}/NC/`;
+    const prefix = dataset === 'Sentinel' 
+        ? `csiem-data/data-lake/ESA/${dataset}/NC/`
+        : `csiem-data/data-lake/NASA/${dataset}/NC/`;
+
     try {
         const response = await fetch(`http://localhost:5000/list_dates?prefix=${prefix}`);
         if (!response.ok) {
@@ -67,21 +70,19 @@ async function updateMap(event) {
     if (event) {
         event.preventDefault();
     }
-    // Start the spinner before loading data
     map.spin(true, { lines: 8, length: 30, width: 13, radius: 20, scale: 0.5, color: 'white' });
 
     const dataset = document.getElementById('dataset').value;
     const variable = document.getElementById('variable').value;
     const date = document.getElementById('daterange').value;
-    const messageElement = document.getElementById('message'); // Assuming there's an element with id 'message' to show messages
+    const messageElement = document.getElementById('message');
 
     console.log("Fetching data from backend");
 
     try {
-        // Fetch both the main image and the colorbar in parallel
         const [response, colorbarResponse] = await Promise.all([
             fetch(`http://localhost:5000/fetch_netcdf?dataset=${dataset}&date=${date}&variable=${variable}`),
-            fetch(`http://localhost:5000/fetch_colorbar`)
+            fetch(`http://localhost:5000/fetch_colorbar?dataset=${dataset}&variable=${variable}`)
         ]);
 
         if (response.status === 204) {
@@ -94,7 +95,6 @@ async function updateMap(event) {
             throw new Error(`HTTP error! status: ${colorbarResponse.status}`);
         }
 
-        // Process the main image
         const blob = await response.blob();
         const url = URL.createObjectURL(blob);
 
@@ -109,41 +109,31 @@ async function updateMap(event) {
         window.currentLayer = L.imageOverlay(url, bounds).addTo(map);
         map.fitBounds(bounds);
 
-        // Process the colorbar image
         const colorbarBlob = await colorbarResponse.blob();
         const colorbarUrl = URL.createObjectURL(colorbarBlob);
-        // Define bounds for the colorbar overlay. Adjust these coordinates to position the colorbar on your map.
-        const colorbarCorner1 = L.latLng(-31.01, 116); // Example coordinates, adjust as needed
-        const colorbarCorner2 = L.latLng(-33.01, 116.5); // Example coordinates, adjust as needed
+        const colorbarCorner1 = L.latLng(-31.01, 116);
+        const colorbarCorner2 = L.latLng(-33.01, 116.5);
         const colorbarBounds = L.latLngBounds(colorbarCorner1, colorbarCorner2);
 
-        // Check if there's an existing colorbar layer and remove it
         if (window.colorbarLayer) {
             map.removeLayer(window.colorbarLayer);
         }
 
-        // Create a new colorbar overlay and add it to the map
-        window.colorbarLayer = L.imageOverlay(colorbarUrl, colorbarBounds, {opacity: 1}).addTo(map);
+        window.colorbarLayer = L.imageOverlay(colorbarUrl, colorbarBounds, { opacity: 1 }).addTo(map);
 
-        // Clear any previous messages
         messageElement.textContent = '';
-
-        // Stop the spinner after all data has been loaded and processed
         map.spin(false);
     } catch (error) {
         console.error("Error fetching data:", error);
-        // Ensure the spinner is stopped even if there's an error
         map.spin(false);
         messageElement.textContent = error.message || 'Error fetching data. Please try again.';
-        // Remove any existing layers
         if (window.currentLayer) {
             map.removeLayer(window.currentLayer);
             window.currentLayer = null;
         }
-        // Remove any existing colorbar
         if (window.colorbarLayer) {
             map.removeLayer(window.colorbarLayer);
-            window.colorbarLayer = null; // Reset the colorbar layer
+            window.colorbarLayer = null;
         }
     }
 }

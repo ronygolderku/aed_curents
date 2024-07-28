@@ -7,8 +7,7 @@ import numpy as np
 from netCDF4 import Dataset
 import matplotlib
 matplotlib.use('Agg')
-from matplotlib.colors import LogNorm, Normalize
-from matplotlib.ticker import FuncFormatter, NullLocator
+from matplotlib.colors import LogNorm
 import matplotlib.colors as mpl_colors
 import matplotlib.pyplot as plt
 from io import BytesIO
@@ -91,19 +90,13 @@ def fetch_netcdf():
             longitude = np.array(dataset.variables['longitude'])
             data_var = dataset.variables[variable][:].squeeze()
         
-        if np.ma.is_masked(data_var) and np.all(data_var.mask):
-                return jsonify({'message': 'No data found within this region!'}), 204  # 204 No Content
+        if np.isnan(data_var).all():
+            return jsonify({'found': False}), 204
 
         plt.figure(figsize=(8, 6))
         ax = plt.axes(projection=ccrs.PlateCarree())
-        N = 64
-        cmap = plt.get_cmap('jet', N)
-        if variable == 'CHL':
-            vmin, vmax = 10**-1.7, 10**1.5
-            norm = LogNorm(vmin=vmin, vmax=vmax)
-        else:
-            vmin, vmax = data_var.min(), data_var.max()
-            norm = Normalize(vmin=vmin, vmax=vmax)
+        cmap = plt.get_cmap('jet')
+        norm = LogNorm(vmin=10**-1.7, vmax=10**1.5) if variable == 'CHL' else mpl_colors.Normalize(vmin=data_var.min(), vmax=data_var.max())
 
         img = ax.pcolormesh(longitude, latitude, data_var, cmap=cmap, norm=norm, transform=ccrs.PlateCarree())
 
@@ -129,22 +122,14 @@ def fetch_netcdf():
 def fetch_colorbar():
     dataset = request.args.get('dataset')
     variable = request.args.get('variable')
-    date = request.args.get('date')
+    vmin = 10**-1.7 if variable == 'CHL' else 0
+    vmax = 10**1.5 if variable == 'CHL' else 30  # Example range for SST, adjust as needed
+
     fig, ax = plt.subplots(figsize=(0.3, 6))
-    N = 64
-    cmap = plt.get_cmap('jet', N)
-    if variable == 'CHL':
-        norm = LogNorm(vmin=10**-1.7, vmax=10**1.5)
-        cbar = plt.colorbar(plt.cm.ScalarMappable(norm=norm, cmap=cmap), cax=ax, orientation='vertical', extend='both')
-        cbar.set_label('Chl-a concentration (Log10 mg/m$^3$)')
-        ticks = [10**-1.7, 10**-1.2, 10**-0.9, 10**-0.6, 10**-0.3, 10**0, 10**0.3, 10**0.6, 10**0.9, 10**1.2, 10**1.5]
-        cbar.set_ticks(ticks)
-        cbar.ax.yaxis.set_major_formatter(FuncFormatter(lambda x, pos: "{:.1f}".format(np.log10(x)) if x in ticks else ''))
-        cbar.ax.yaxis.set_minor_locator(NullLocator())
-    else:
-        norm = Normalize(vmin=0, vmax=30)
-        cbar = plt.colorbar(plt.cm.ScalarMappable(norm=norm, cmap=cmap), cax=ax, orientation='vertical', extend='both')
-        cbar.set_label('Sea Surface Temperature (°C)')
+    cmap = plt.get_cmap('jet')
+    norm = LogNorm(vmin=vmin, vmax=vmax) if variable == 'CHL' else mpl_colors.Normalize(vmin=vmin, vmax=vmax)
+    cbar = plt.colorbar(plt.cm.ScalarMappable(norm=norm, cmap=cmap), cax=ax, orientation='vertical', extend='both')
+    cbar.set_label('Chl-a concentration (mg/m3)' if variable == 'CHL' else 'Sea Surface Temperature (°C)')
     
     buf = BytesIO()
     plt.savefig(buf, format='png', bbox_inches='tight', pad_inches=0.1)
