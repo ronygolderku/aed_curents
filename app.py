@@ -20,12 +20,12 @@ app = Flask(__name__)  # Initialize Flask app
 CORS(app)  # Enable CORS for all routes
 
 # Load environment variables
-#load_dotenv()
+load_dotenv()
 
-AWS_ACCESS_KEY_ID = '4b68780a4be74f31aa2e7cbc4de6dd2f'
-AWS_SECRET_ACCESS_KEY = '92dcce9fa2034ac7af8fd4c92182567e'
-AWS_S3_ENDPOINT = 'https://projects.pawsey.org.au'
-AWS_DEFAULT_REGION = 'us-east-1'
+AWS_ACCESS_KEY_ID = os.getenv('AWS_ACCESS_KEY_ID')
+AWS_SECRET_ACCESS_KEY = os.getenv('AWS_SECRET_ACCESS_KEY')
+AWS_S3_ENDPOINT = os.getenv('AWS_S3_ENDPOINT')
+AWS_DEFAULT_REGION = os.getenv('AWS_DEFAULT_REGION')
 
 # Initialize S3 client
 s3_client = boto3.client(
@@ -157,4 +157,4 @@ def fetch_colorbar():
     
     return send_file(buf, mimetype='image/png')
 if __name__ == '__main__':
-    app.run(debug=True)
+    app.run(host='0.0.0.0', port=5000)
