@@ -40,9 +40,11 @@ jobs:
           subscription-id: ${{ secrets.AZUREAPPSERVICE_SUBSCRIPTIONID_8F01B9BC104B401DB2A04073BAC4D3DB }}
 
       - name: Deploy to Azure Web App
+        uses: azure/webapps-deploy@v3
         id: deploy-to-webapp
-        run: |
-          az webapp up --name wamsisatellite --resource-group wamsisatellite_group --location Australia East --runtime "PYTHON|3.8"
+        with:
+          app-name: 'wamsisatellite'
+          slot-name: 'production'
 
       - name: Restart Azure Web App
         run: az webapp restart --name wamsisatellite --resource-group wamsisatellite_group
