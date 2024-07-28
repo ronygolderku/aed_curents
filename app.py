@@ -102,7 +102,8 @@ def fetch_netcdf():
             vmin, vmax = 10**-1.7, 10**1.5
             norm = LogNorm(vmin=vmin, vmax=vmax)
         else:
-            vmin, vmax = data_var.min(), data_var.max()
+            # vmin, vmax = data_var.min(), data_var.max()
+            vmin, vmax = 14, 28
             norm = Normalize(vmin=vmin, vmax=vmax)
 
         img = ax.pcolormesh(longitude, latitude, data_var, cmap=cmap, norm=norm, transform=ccrs.PlateCarree())
@@ -129,7 +130,6 @@ def fetch_netcdf():
 def fetch_colorbar():
     dataset = request.args.get('dataset')
     variable = request.args.get('variable')
-    date = request.args.get('date')
     fig, ax = plt.subplots(figsize=(0.3, 6))
     N = 64
     cmap = plt.get_cmap('jet', N)
@@ -142,7 +142,7 @@ def fetch_colorbar():
         cbar.ax.yaxis.set_major_formatter(FuncFormatter(lambda x, pos: "{:.1f}".format(np.log10(x)) if x in ticks else ''))
         cbar.ax.yaxis.set_minor_locator(NullLocator())
     else:
-        norm = Normalize(vmin=0, vmax=30)
+        norm = Normalize(vmin=14, vmax=28)
         cbar = plt.colorbar(plt.cm.ScalarMappable(norm=norm, cmap=cmap), cax=ax, orientation='vertical', extend='both')
         cbar.set_label('Sea Surface Temperature (°C)')
     
