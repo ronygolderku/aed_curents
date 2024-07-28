@@ -8,7 +8,7 @@ module.exports = {
     },
     output: {
         filename: '[name].bundle.js', // [name] will be replaced with the entry point name (e.g., plankton.bundle.js)
-        path: path.resolve(__dirname, 'dist'),
+        path: path.resolve(__dirname, 'static/dist/'),
     },
     module: {
         rules: [

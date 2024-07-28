@@ -58,7 +58,6 @@ document.addEventListener('DOMContentLoaded', function() {
             const latitude = parseFloat(point['latitude']);
             const longitude = parseFloat(point['longitude']);
             if (!isNaN(latitude) && !isNaN(longitude)) {
-                console.log("Adding marker at:", latitude, longitude);
                 const marker = L.marker([latitude, longitude])
                     .bindTooltip(`<b>Point No: ${pointId}</b><br>Latitude: ${latitude}<br>Longitude: ${longitude}`, {
                         permanent: false, // Tooltip will show on hover
@@ -71,7 +70,6 @@ document.addEventListener('DOMContentLoaded', function() {
                 console.warn("Invalid latitude or longitude for point:", point);
             }
         });
-        console.log("Plankton markers added");
         // planktonLayer.addTo(map);
         layerControl.addOverlay(planktonLayer, 'GHRSST SST');
         return planktonLayer;
@@ -150,12 +148,10 @@ document.addEventListener('DOMContentLoaded', function() {
     }
 
     // Fetch points.csv and add markers
-    fetch('points.csv')
+    fetch('static/data/points.csv')
     .then(response => response.text())
     .then(csvText => {
-        console.log("CSV Data fetched successfully");
         const data = parseCSV(csvText, ',');
-        console.log("Parsed Data:", data);
         const planktonLayer = addPlanktonMarkers(data); // Get the planktonLayer
         map.on('overlayremove', function(e) {
             if (e.layer === planktonLayer) {

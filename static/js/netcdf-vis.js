@@ -80,7 +80,7 @@ var velocityLayer = null;
 
 // Load all JSON files
 for (let i = 1; i <= 13; i++) {
-    $.getJSON(`data/wind${i}.json`, function (data) {
+    $.getJSON(`static/data/wind${i}.json`, function (data) {
         const refTime = data[0].header.refTime;
         times.push(refTime);
         dataCache[refTime] = data;

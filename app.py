@@ -1,4 +1,4 @@
-from flask import Flask, jsonify, request, send_file
+from flask import Flask, jsonify, request, send_file, render_template
 from flask_cors import CORS
 import boto3
 import os
@@ -16,7 +16,7 @@ import cartopy.crs as ccrs
 import cartopy.feature as cfeature
 from contextlib import closing
 
-app = Flask(__name__)
+app = Flask(__name__)  # Initialize Flask app
 CORS(app)  # Enable CORS for all routes
 
 load_dotenv()
@@ -34,6 +34,9 @@ s3_client = boto3.client(
     endpoint_url=AWS_S3_ENDPOINT,
     region_name=AWS_DEFAULT_REGION
 )
+@app.route('/')
+def home():
+    return render_template('index.html')
 
 @app.route('/list_dates', methods=['GET'])
 def list_dates():
@@ -109,7 +112,7 @@ def fetch_netcdf():
         img = ax.pcolormesh(longitude, latitude, data_var, cmap=cmap, norm=norm, transform=ccrs.PlateCarree())
 
         ax.add_feature(cfeature.OCEAN, zorder=0, color='#232227')
-        ax.add_feature(cfeature.LAND, zorder=0, color='#4E4E50')
+        ax.add_feature(cfeature.LAND, zorder=1, color='#4E4E50')
         
         ax.set_extent([114, 116, -33, -31], crs=ccrs.PlateCarree())
         ax.set_aspect(aspect='auto')
@@ -154,4 +157,4 @@ def fetch_colorbar():
     return send_file(buf, mimetype='image/png')
 
 if __name__ == '__main__':
-    app.run(host='0.0.0.0', port=8000)
+    app.run(debug=True)
