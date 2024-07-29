@@ -20,6 +20,9 @@ jobs:
           python-version: '3.12'
 
       - name: Install system dependencies
+        run: sudo apt-get install -y libgeos-dev
+
+      - name: Install Python dependencies
         run: |
           sudo apt-get update
           sudo apt-get install -y libgeos-dev
@@ -48,6 +51,7 @@ jobs:
         with:
           app-name: 'wamsisatellite'
           slot-name: 'production'
+
     environment:
       name: 'production'
       url: ${{ steps.deploy-to-webapp.outputs.webapp-url }}
