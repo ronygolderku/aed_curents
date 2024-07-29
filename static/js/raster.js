@@ -50,7 +50,7 @@ async function fetchDatesForDataset(dataset) {
         : `csiem-data/data-lake/NASA/${dataset}/NC/`;
 
     try {
-        const response = await fetch(`http://localhost:5000/list_dates?prefix=${prefix}`);
+        const response = await fetch(`/list_dates?prefix=${prefix}`);
         if (!response.ok) {
             throw new Error(`HTTP error! status: ${response.status}`);
         }
@@ -81,8 +81,8 @@ async function updateMap(event) {
 
     try {
         const [response, colorbarResponse] = await Promise.all([
-            fetch(`http://localhost:5000/fetch_netcdf?dataset=${dataset}&date=${date}&variable=${variable}`),
-            fetch(`http://localhost:5000/fetch_colorbar?dataset=${dataset}&variable=${variable}`)
+            fetch(`/fetch_netcdf?dataset=${dataset}&date=${date}&variable=${variable}`),
+            fetch(`/fetch_colorbar?dataset=${dataset}&variable=${variable}`)
         ]);
 
         if (response.status === 204) {

@@ -18,7 +18,10 @@ jobs:
         with:
           python-version: '3.8'
 
-      - name: Install dependencies
+      - name: Install system dependencies
+        run: sudo apt-get install -y libgeos-dev
+
+      - name: Install Python dependencies
         run: |
           python -m venv venv
           source venv/bin/activate
