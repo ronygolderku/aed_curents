@@ -20,17 +20,11 @@ jobs:
           python-version: '3.12'
 
       - name: Install system dependencies
-<<<<<<< HEAD
-        run: sudo apt-get install -y libgeos-dev
-
-      - name: Install Python dependencies
-=======
         run: |
           sudo apt-get update
           sudo apt-get install -y libgeos-dev
 
       - name: Create and start virtual environment
->>>>>>> b4122a49bd591a67f1f5df3f691122c6934e51dc
         run: |
           python -m venv venv
           source venv/bin/activate
@@ -54,14 +48,6 @@ jobs:
         with:
           app-name: 'wamsisatellite'
           slot-name: 'production'
-          publish-profile: ${{ secrets.AZURE_WEBAPP_PUBLISH_PROFILE }}
-
-      - name: Set startup command
-        run: az webapp config set --name wamsisatellite --resource-group wamsisatellite_group --startup-file 'gunicorn --bind 0.0.0.0:$PORT app:app'
-
-      - name: Restart Azure Web App
-        run: az webapp restart --name wamsisatellite --resource-group wamsisatellite_group
-
     environment:
       name: 'production'
       url: ${{ steps.deploy-to-webapp.outputs.webapp-url }}
