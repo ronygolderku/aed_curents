@@ -20,17 +20,14 @@ jobs:
           python-version: '3.12'
 
       - name: Install system dependencies
-<<<<<<< HEAD
         run: sudo apt-get install -y libgeos-dev
 
       - name: Install Python dependencies
-=======
         run: |
           sudo apt-get update
           sudo apt-get install -y libgeos-dev
 
       - name: Create and start virtual environment
->>>>>>> b4122a49bd591a67f1f5df3f691122c6934e51dc
         run: |
           python -m venv venv
           source venv/bin/activate
