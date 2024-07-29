@@ -1,9 +1,10 @@
-name: Deploy to Azure
+name: Build and deploy Python app to Azure Web App - wamsisatellite
 
 on:
   push:
     branches:
       - main
+  workflow_dispatch:
 
 jobs:
   build-and-deploy:
@@ -11,21 +12,33 @@ jobs:
 
     steps:
       - name: Checkout code
-        uses: actions/checkout@v2
+        uses: actions/checkout@v4
 
-      - name: Set up Python
-        uses: actions/setup-python@v2
+      - name: Set up Python version
+        uses: actions/setup-python@v5
         with:
-          python-version: '3.8'
+          python-version: '3.12'
 
       - name: Install system dependencies
+<<<<<<< HEAD
         run: sudo apt-get install -y libgeos-dev
 
       - name: Install Python dependencies
+=======
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y libgeos-dev
+
+      - name: Create and start virtual environment
+>>>>>>> b4122a49bd591a67f1f5df3f691122c6934e51dc
         run: |
           python -m venv venv
           source venv/bin/activate
           pip install --upgrade pip
+
+      - name: Install dependencies
+        run: |
+          source venv/bin/activate
           pip install -r requirements.txt
 
       - name: Login to Azure
@@ -36,8 +49,23 @@ jobs:
           subscription-id: ${{ secrets.AZUREAPPSERVICE_SUBSCRIPTIONID_8F01B9BC104B401DB2A04073BAC4D3DB }}
 
       - name: Deploy to Azure Web App
-        run: |
-          az webapp up --name wamsisatellite --resource-group wamsisatellite_group --location Australia East --runtime "PYTHON|3.8"
+        uses: azure/webapps-deploy@v3
+        id: deploy-to-webapp
+        with:
+          app-name: 'wamsisatellite'
+          slot-name: 'production'
+          publish-profile: ${{ secrets.AZURE_WEBAPP_PUBLISH_PROFILE }}
+
+      - name: Set startup command
+        run: az webapp config set --name wamsisatellite --resource-group wamsisatellite_group --startup-file 'gunicorn --bind 0.0.0.0:$PORT app:app'
 
       - name: Restart Azure Web App
         run: az webapp restart --name wamsisatellite --resource-group wamsisatellite_group
+
+    environment:
+      name: 'production'
+      url: ${{ steps.deploy-to-webapp.outputs.webapp-url }}
+
+    permissions:
+      id-token: write
+      contents: read
