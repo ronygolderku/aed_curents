@@ -22,7 +22,7 @@ jobs:
       - name: Install system dependencies
         run: |
           sudo apt-get update
-          sudo apt-get install -y libgeos-dev gunicorn
+          sudo apt-get install -y libgeos-dev
 
       - name: Create and start virtual environment
         run: |
@@ -55,3 +55,11 @@ jobs:
 
       - name: Restart Azure Web App
         run: az webapp restart --name wamsisatellite --resource-group wamsisatellite_group
+
+    environment:
+      name: 'production'
+      url: ${{ steps.deploy-to-webapp.outputs.webapp-url }}
+
+    permissions:
+      id-token: write
+      contents: read
