@@ -1,13 +1,10 @@
-name: Deploy to Azure
+name: Build and deploy Python app to Azure Web App - wamsisatellite
 
 on:
   push:
     branches:
       - main
-
-permissions:
-  id-token: write
-  contents: read
+  workflow_dispatch:
 
 jobs:
   build-and-deploy:
@@ -15,21 +12,27 @@ jobs:
 
     steps:
       - name: Checkout code
-        uses: actions/checkout@v2
+        uses: actions/checkout@v4
 
-      - name: Set up Python
-        uses: actions/setup-python@v2
+      - name: Set up Python version
+        uses: actions/setup-python@v5
         with:
-          python-version: '3.8'
+          python-version: '3.12'
 
       - name: Install system dependencies
-        run: sudo apt-get install -y libgeos-dev
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y libgeos-dev gunicorn
 
-      - name: Install Python dependencies
+      - name: Create and start virtual environment
         run: |
           python -m venv venv
           source venv/bin/activate
           pip install --upgrade pip
+
+      - name: Install dependencies
+        run: |
+          source venv/bin/activate
           pip install -r requirements.txt
 
       - name: Login to Azure
@@ -45,10 +48,10 @@ jobs:
         with:
           app-name: 'wamsisatellite'
           slot-name: 'production'
+          publish-profile: ${{ secrets.AZURE_WEBAPP_PUBLISH_PROFILE }}
+
+      - name: Set startup command
+        run: az webapp config set --name wamsisatellite --resource-group wamsisatellite_group --startup-file 'gunicorn --bind 0.0.0.0:$PORT app:app'
 
       - name: Restart Azure Web App
         run: az webapp restart --name wamsisatellite --resource-group wamsisatellite_group
-
-    environment:
-      name: 'production'
-      url: ${{ steps.deploy-to-webapp.outputs.webapp-url }}
