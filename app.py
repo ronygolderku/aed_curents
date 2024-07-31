@@ -4,12 +4,13 @@ import boto3
 import os
 from dotenv import load_dotenv
 import numpy as np
+import base64
 from netCDF4 import Dataset
 import matplotlib
 matplotlib.use('Agg')
 from matplotlib.colors import LogNorm, Normalize
 from matplotlib.ticker import FuncFormatter, NullLocator
-import matplotlib.colors as mpl_colors
+import matplotlib.colors as colors
 import matplotlib.pyplot as plt
 from io import BytesIO
 import cartopy.crs as ccrs
@@ -106,8 +107,8 @@ def fetch_netcdf():
             vmin, vmax = 10**-1.7, 10**1.5
             norm = LogNorm(vmin=vmin, vmax=vmax)
         else:
-            # vmin, vmax = data_var.min(), data_var.max()
-            vmin, vmax = 14, 28
+            vmin, vmax = data_var.min(), data_var.max()
+            # vmin, vmax = 14, 28
             norm = Normalize(vmin=vmin, vmax=vmax)
 
         img = ax.pcolormesh(longitude, latitude, data_var, cmap=cmap, norm=norm, transform=ccrs.PlateCarree())
@@ -125,15 +126,19 @@ def fetch_netcdf():
         plt.close()
         os.remove(local_file)
 
-        return send_file(buf, mimetype='image/png')
+        # Encode image to base64 string
+        img_str = base64.b64encode(buf.getvalue()).decode('utf-8')
+
+        return jsonify({'data_var': data_var.tolist(), 'image': img_str})
     except Exception as e:
         print(f"Error processing NetCDF file: {e}")
         return jsonify({'error': str(e)}), 500
 
-@app.route('/fetch_colorbar', methods=['GET'])
+@app.route('/fetch_colorbar', methods=['POST'])
 def fetch_colorbar():
-    dataset = request.args.get('dataset')
-    variable = request.args.get('variable')
+    data = request.json
+    variable = data.get('variable')
+    data_var = np.array(data.get('data_var'))
     fig, ax = plt.subplots(figsize=(0.3, 6))
     N = 64
     cmap = plt.get_cmap('jet', N)
@@ -146,7 +151,11 @@ def fetch_colorbar():
         cbar.ax.yaxis.set_major_formatter(FuncFormatter(lambda x, pos: "{:.1f}".format(np.log10(x)) if x in ticks else ''))
         cbar.ax.yaxis.set_minor_locator(NullLocator())
     else:
-        norm = Normalize(vmin=14, vmax=28)
+        N = 64
+        cmap = plt.get_cmap('jet', N)
+        vmin, vmax = np.nanmin([x for x in np.ravel(data_var) if x is not None]), np.nanmax([x for x in np.ravel(data_var) if x is not None])
+        # norm = Normalize(vmin=14, vmax=28)
+        norm = Normalize(vmin=vmin, vmax=vmax)
         cbar = plt.colorbar(plt.cm.ScalarMappable(norm=norm, cmap=cmap), cax=ax, orientation='vertical', extend='both')
         cbar.set_label('Sea Surface Temperature (°C)')
     

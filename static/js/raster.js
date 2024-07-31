@@ -80,23 +80,22 @@ async function updateMap(event) {
     console.log("Fetching data from backend");
 
     try {
-        const [response, colorbarResponse] = await Promise.all([
-            fetch(`/fetch_netcdf?dataset=${dataset}&date=${date}&variable=${variable}`),
-            fetch(`/fetch_colorbar?dataset=${dataset}&variable=${variable}`)
-        ]);
-
+        const response = await fetch(`/fetch_netcdf?dataset=${dataset}&date=${date}&variable=${variable}`);
         if (response.status === 204) {
             throw new Error('No data found for the selected variables within this region 😞');
         }
         if (!response.ok) {
             throw new Error(`HTTP error! status: ${response.status}`);
         }
-        if (!colorbarResponse.ok) {
-            throw new Error(`HTTP error! status: ${colorbarResponse.status}`);
+
+        const result = await response.json();
+
+        if (result.message) {
+            messageElement.textContent = result.message;
+            return;
         }
 
-        const blob = await response.blob();
-        const url = URL.createObjectURL(blob);
+        const url = `data:image/png;base64,${result.image}`;
 
         if (window.currentLayer) {
             map.removeLayer(window.currentLayer);
@@ -108,6 +107,18 @@ async function updateMap(event) {
 
         window.currentLayer = L.imageOverlay(url, bounds).addTo(map);
         map.fitBounds(bounds);
+
+        const colorbarResponse = await fetch('/fetch_colorbar', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({ variable: variable, data_var: result.data_var })
+        });
+
+        if (!colorbarResponse.ok) {
+            throw new Error(`HTTP error! status: ${colorbarResponse.status}`);
+        }
 
         const colorbarBlob = await colorbarResponse.blob();
         const colorbarUrl = URL.createObjectURL(colorbarBlob);
