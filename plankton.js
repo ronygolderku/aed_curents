@@ -113,7 +113,8 @@ document.addEventListener('DOMContentLoaded', function() {
                     data: values,
                     borderColor: 'rgba(75, 192, 192, 1)',
                     borderWidth: 1,
-                    fill: false
+                    fill: false,
+                    pointRadius: 0
                 }]
             },
             options: {
