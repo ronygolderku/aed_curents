@@ -72,7 +72,7 @@ document.addEventListener('DOMContentLoaded', function() {
             }
         });
         // planktonLayer.addTo(map);
-        layerControl.addOverlay(planktonLayer, 'Sentinel Chl-a');
+        layerControl.addOverlay(planktonLayer, 'Sentinel 3 Chl-a');
         return planktonLayer;
     }
 
