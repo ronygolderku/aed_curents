@@ -208,11 +208,14 @@ async function updateMap(event) {
 
         if (window.currentLayer) {
             map.removeLayer(window.currentLayer);
+            window.currentLayer = null;
+        }
+        //Remove the exisitng colorbar
+        if (window.colorbarLayer) {
+            map.removeLayer(window.colorbarLayer);
+            window.colorbarLayer = null;
         }
 
-        // const corner1 = L.latLng(-33, 114);
-        // const corner2 = L.latLng(-31, 116);
-        // const bounds = L.latLngBounds(corner1, corner2);
         const bounds = L.latLngBounds(
             [result.lat_min, result.lon_min],
             [result.lat_max, result.lon_max]
@@ -221,47 +224,52 @@ async function updateMap(event) {
         window.currentLayer = L.imageOverlay(url, bounds).addTo(map);
         map.fitBounds(bounds);
 
-        const colorbarResponse = await fetch('/fetch_colorbar', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json'
-            },
-            body: JSON.stringify({ variable: variable, data_var: result.data_var })
-        });
+        if (variable !== "True_Color") {
+            const colorbarResponse = await fetch('/fetch_colorbar', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ variable: variable, data_var: result.data_var })
+            });
 
-        if (!colorbarResponse.ok) {
-            throw new Error(`HTTP error! status: ${colorbarResponse.status}`);
+            if (colorbarResponse.status !== 204) {
+                if (!colorbarResponse.ok) {
+                    throw new Error(`HTTP error! status: ${colorbarResponse.status}`);
+                }
+
+                const colorbarBlob = await colorbarResponse.blob();
+                const colorbarUrl = URL.createObjectURL(colorbarBlob);
+
+                let colorbarBounds;
+                if (variable === 'analysed_sst') {
+                    colorbarBounds = L.latLngBounds(
+                        [-31.01, 116],
+                        [-33.01, 116.5]
+                    );
+                } else {
+                    colorbarBounds = L.latLngBounds(
+                        [-31.96, 115.85],
+                        [-32.30, 115.95]
+                    );
+                }
+
+                // if (window.colorbarLayer) {
+                //     map.removeLayer(window.colorbarLayer);
+                // }
+
+                window.colorbarLayer = L.imageOverlay(colorbarUrl, colorbarBounds, { opacity: 1 }).addTo(map);
+            }
         }
-
-        const colorbarBlob = await colorbarResponse.blob();
-        const colorbarUrl = URL.createObjectURL(colorbarBlob);
-        // Define the bounds for the colorbar overlay based on the variable type
-        // Define colorbar bounds based on variable
-        let colorbarBounds;
-        if (variable === 'analysed_sst') {
-            colorbarBounds = L.latLngBounds(
-                [-31.01, 116],   // Top-left corner
-                [-33.01, 116.5]  // Bottom-right corner
-            );
-        } else {
-            colorbarBounds = L.latLngBounds(
-                [-31.96, 115.85],     // Top-left corner
-                [-32.30, 115.95]   // Bottom-right corner
-            );
-        }
-
-        if (window.colorbarLayer) {
-            map.removeLayer(window.colorbarLayer);
-        }
-
-        window.colorbarLayer = L.imageOverlay(colorbarUrl, colorbarBounds, { opacity: 1 }).addTo(map);
 
         messageElement.textContent = '';
         map.spin(false);
+
     } catch (error) {
         console.error("Error fetching data:", error);
         map.spin(false);
         messageElement.textContent = error.message || 'Error fetching data. Please try again.';
+
         if (window.currentLayer) {
             map.removeLayer(window.currentLayer);
             window.currentLayer = null;
