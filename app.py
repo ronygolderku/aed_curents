@@ -113,13 +113,13 @@ def fetch_netcdf():
         if dataset == 'Sentinel_2':
             # Handle PNG files for Sentinel-2
             if variable == 'conc_chl':
-                prefix = f'csiem-data/data-lake/ESA/Sentinel_2/leaflet/CHL_img/{date_str}.png'
+                prefix = f'csiem-data/data-lake/ESA/Sentinel_2/leaflet_v1/CHL_img/{date_str}.png'
             elif variable == 'conc_tsm':
-                prefix = f'csiem-data/data-lake/ESA/Sentinel_2/leaflet/TSM_img/{date_str}.png'
+                prefix = f'csiem-data/data-lake/ESA/Sentinel_2/leaflet_v1/TSM_img/{date_str}.png'
             elif variable == 'cdom':
-                prefix = f'csiem-data/data-lake/ESA/Sentinel_2/leaflet/CDOM_img/{date_str}.png'
+                prefix = f'csiem-data/data-lake/ESA/Sentinel_2/leaflet_v1/CDOM_img/{date_str}.png'
             elif variable == 'True_Color':
-                prefix = f'csiem-data/data-lake/ESA/Sentinel_2/leaflet/True_Color/{date_str}.png'
+                prefix = f'csiem-data/data-lake/ESA/Sentinel_2/leaflet_v1/True_Color/{date_str}.png'
             else:
                 return jsonify({'error': 'Invalid variable for Sentinel_2'}), 400
 
